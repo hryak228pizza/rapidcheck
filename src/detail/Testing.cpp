@@ -28,9 +28,12 @@ int sizeFor(const TestParams &params, int i) {
 
 } // namespace
 
+static int TestCaseNumber = 0;
+
 SearchResult searchProperty(const Property &property,
                             const TestParams &params,
-                            TestListener &listener) {
+                            TestListener &listener,
+                            bool VerboseMode) {
   SearchResult searchResult;
   searchResult.type = SearchResult::Type::Success;
   searchResult.numSuccess = 0;
@@ -50,6 +53,20 @@ SearchResult searchProperty(const Property &property,
     auto caseDescription = shrinkable.value();
     listener.onTestCaseFinished(caseDescription);
     const auto &result = caseDescription.result;
+
+
+    if (VerboseMode) {
+      // Verbose
+      const auto &values = caseDescription.example();
+      TestCaseNumber++;
+      std::cout << "Test " << TestCaseNumber << " Input: \n";
+      for (const auto &pair : values) {
+        std::cout << "  " << pair.second << std::endl;
+      }
+      std::cout << "\n";
+    }
+
+
 
     switch (result.type) {
     case CaseResult::Type::Failure:
@@ -111,8 +128,11 @@ namespace {
 
 TestResult doTestProperty(const Property &property,
                           const TestParams &params,
-                          TestListener &listener) {
-  const auto searchResult = searchProperty(property, params, listener);
+                          TestListener &listener,
+                          bool VerboseMode) {
+
+  // std::cout << "doTestProperty" << std::endl;
+  const auto searchResult = searchProperty(property, params, listener, VerboseMode);
   if (searchResult.type == SearchResult::Type::Success) {
     SuccessResult success;
     success.numSuccess = searchResult.numSuccess;
@@ -155,14 +175,17 @@ TestResult doTestProperty(const Property &property,
 TestResult testProperty(const Property &property,
                         const TestMetadata &metadata,
                         const TestParams &params,
-                        TestListener &listener) {
-  TestResult result = doTestProperty(property, params, listener);
+                        TestListener &listener,
+                        bool VerboseMode) {
+  // std::cout << "testProperty" << std::endl;
+  TestResult result = doTestProperty(property, params, listener, VerboseMode);
   listener.onTestFinished(metadata, result);
   return result;
 }
 
 TestResult reproduceProperty(const Property &property,
                              const Reproduce &reproduce) {
+  // std::cout << "reproduceProperty" << std::endl;
   const auto shrinkable = property(reproduce.random, reproduce.size);
   const auto minShrinkable =
       shrinkable::walkPath(shrinkable, reproduce.shrinkPath);

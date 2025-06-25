@@ -11,9 +11,10 @@ checkProperty(const Property &property,
               const TestMetadata &metadata,
               const TestParams &params,
               TestListener &listener,
-              const std::unordered_map<std::string, Reproduce> &reproduceMap) {
+              const std::unordered_map<std::string, Reproduce> &reproduceMap,
+              bool VerboseMode) {
   if (reproduceMap.empty()) {
-    return testProperty(property, metadata, params, listener);
+    return testProperty(property, metadata, params, listener, VerboseMode);
   }
 
   const auto it = reproduceMap.find(metadata.id);
@@ -33,24 +34,33 @@ checkProperty(const Property &property,
 TestResult checkProperty(const Property &property,
                          const TestMetadata &metadata,
                          const TestParams &params,
-                         TestListener &listener) {
-  return checkProperty(
-      property, metadata, params, listener, configuration().reproduce);
+                         TestListener &listener,
+                         bool VerboseMode) {
+  return checkProperty(property,
+                       metadata,
+                       params,
+                       listener,
+                       configuration().reproduce,
+                       VerboseMode);
 }
 
 TestResult checkProperty(const Property &property,
                          const TestMetadata &metadata,
-                         const TestParams &params) {
-  return checkProperty(property, metadata, params, globalTestListener());
+                         const TestParams &params,
+                         bool VerboseMode) {
+  return checkProperty(
+      property, metadata, params, globalTestListener(), VerboseMode);
 }
 
 TestResult checkProperty(const Property &property,
-                         const TestMetadata &metadata) {
-  return checkProperty(property, metadata, configuration().testParams);
+                         const TestMetadata &metadata,
+                         bool VerboseMode) {
+  return checkProperty(
+      property, metadata, configuration().testParams, VerboseMode);
 }
 
-TestResult checkProperty(const Property &property) {
-  return checkProperty(property, TestMetadata());
+TestResult checkProperty(const Property &property, bool VerboseMode) {
+  return checkProperty(property, TestMetadata(), VerboseMode);
 }
 
 } // namespace detail

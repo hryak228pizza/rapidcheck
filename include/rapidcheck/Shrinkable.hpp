@@ -19,7 +19,7 @@ template <typename Impl>
 class Shrinkable<T>::ShrinkableImpl : public IShrinkableImpl {
 public:
   template <typename... Args>
-  explicit ShrinkableImpl(Args &&... args)
+  explicit ShrinkableImpl(Args &&...args)
       : m_impl(std::forward<Args>(args)...)
       , m_count(1) {}
 
@@ -60,7 +60,8 @@ Shrinkable<T>::Shrinkable(const Shrinkable &other) noexcept
 }
 
 template <typename T>
-Shrinkable<T>::Shrinkable(Shrinkable &&other) noexcept : m_impl(other.m_impl) {
+Shrinkable<T>::Shrinkable(Shrinkable &&other) noexcept
+    : m_impl(other.m_impl) {
   other.m_impl = nullptr;
 }
 
@@ -93,7 +94,7 @@ Shrinkable<T>::~Shrinkable() noexcept {
 
 template <typename Impl, typename... Args>
 Shrinkable<Decay<decltype(std::declval<Impl>().value())>>
-makeShrinkable(Args &&... args) {
+makeShrinkable(Args &&...args) {
   using T = decltype(std::declval<Impl>().value());
   using ShrinkableImpl = typename Shrinkable<T>::template ShrinkableImpl<Impl>;
 

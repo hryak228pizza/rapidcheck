@@ -57,7 +57,8 @@ struct SearchResult {
 /// @return A `SearchResult` structure describing the result of the search.
 SearchResult searchProperty(const Property &property,
                             const TestParams &params,
-                            TestListener &listener);
+                            TestListener &listener,
+                            bool VerboseMode);
 
 /// Shrinks the given case description shrinkable.
 ///
@@ -78,7 +79,8 @@ shrinkTestCase(const Shrinkable<CaseDescription> &shrinkable,
 TestResult testProperty(const Property &property,
                         const TestMetadata &metadata,
                         const TestParams &params,
-                        TestListener &listener);
+                        TestListener &listener,
+                        bool VerboseMode);
 
 /// Reproduces a test result for the given property using a `Reproduce` value.
 TestResult reproduceProperty(const Property &property,

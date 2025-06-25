@@ -4,6 +4,7 @@
 #undef min
 #undef max
 
+
 #include "rapidcheck/Seq.h"
 #include "rapidcheck/seq/Create.h"
 #include "rapidcheck/seq/Operations.h"
@@ -35,3 +36,9 @@
 #include "rapidcheck/Classify.h"
 #include "rapidcheck/Log.h"
 #include "rapidcheck/Show.h"
+
+
+// #include "rapidcheck/Verbose.h"
+
+
+

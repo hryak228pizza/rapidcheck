@@ -2,19 +2,19 @@
 
 #include <cassert>
 
+#include "rapidcheck/Compat.h"
 #include "rapidcheck/detail/Any.h"
 #include "rapidcheck/detail/ImplicitParam.h"
 #include "rapidcheck/gen/detail/GenerationHandler.h"
 #include "rapidcheck/shrinkable/Create.h"
-#include  "rapidcheck/Compat.h"
 
 namespace rc {
 namespace gen {
 
 // Forward declare this so we don't need to include Transform.h
 template <typename T, typename Mapper>
-Gen<Decay<typename rc::compat::return_type<Mapper,T>::type>> map(Gen<T> gen,
-                                                         Mapper &&mapper);
+Gen<Decay<typename rc::compat::return_type<Mapper, T>::type>>
+map(Gen<T> gen, Mapper &&mapper);
 
 } // namespace gen
 
@@ -32,7 +32,7 @@ template <typename Impl>
 class Gen<T>::GenImpl : public IGenImpl {
 public:
   template <typename... Args>
-  GenImpl(Args &&... args)
+  GenImpl(Args &&...args)
       : m_impl(std::forward<Args>(args)...)
       , m_count(1) {}
 
@@ -64,15 +64,14 @@ std::string Gen<T>::name() const {
 }
 
 template <typename T>
-Shrinkable<T> Gen<T>::operator()(const Random &random, int size) const
-    noexcept {
+Shrinkable<T> Gen<T>::operator()(const Random &random,
+                                 int size) const noexcept {
   try {
     return m_impl->generate(random, size);
   } catch (...) {
     auto exception = std::current_exception();
-    return shrinkable::lambda([=]() -> T {
-      std::rethrow_exception(exception);
-    });
+    return shrinkable::lambda(
+        [=]() -> T { std::rethrow_exception(exception); });
   }
 }
 
@@ -93,8 +92,9 @@ Gen<T> Gen<T>::as(const std::string &name) const {
 }
 
 template <typename T>
-Gen<T>::Gen(const Gen &other) noexcept : m_impl(other.m_impl),
-                                         m_name(other.m_name) {
+Gen<T>::Gen(const Gen &other) noexcept
+    : m_impl(other.m_impl)
+    , m_name(other.m_name) {
   m_impl->retain();
 }
 
@@ -110,8 +110,9 @@ Gen<T> &Gen<T>::operator=(const Gen &rhs) noexcept {
 }
 
 template <typename T>
-Gen<T>::Gen(Gen &&other) noexcept : m_impl(other.m_impl),
-                                    m_name(std::move(other.m_name)) {
+Gen<T>::Gen(Gen &&other) noexcept
+    : m_impl(other.m_impl)
+    , m_name(std::move(other.m_name)) {
   other.m_impl = nullptr;
 }
 

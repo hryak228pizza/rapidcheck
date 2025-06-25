@@ -16,7 +16,7 @@ if(MSVC)
   # /bigobj - some object files become very large so we need this
   # /wd4503 - truncation of decorated name, not much we can do about it so
   #           disable it
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4503 /WX")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4503")
   # /RTC* is incompatible with /O2 needed for Random.cpp to speed it up
   string(REGEX REPLACE "/RTC(su|[1su])" ""
     CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -139,3 +139,11 @@ configure_file(
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
   )
+
+
+
+add_executable(my_test main.cpp)
+
+
+target_link_libraries(my_test PRIVATE ${CMAKE_BINARY_DIR}/Debug/rapidcheck.lib)
+target_include_directories(my_test PRIVATE ${CMAKE_SOURCE_DIR}/include)

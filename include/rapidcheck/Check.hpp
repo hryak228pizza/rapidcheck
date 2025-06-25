@@ -15,22 +15,27 @@ checkProperty(const Property &property,
               const TestMetadata &metadata,
               const TestParams &params,
               TestListener &listener,
-              const std::unordered_map<std::string, Reproduce> &reproduceMap);
+              const std::unordered_map<std::string, Reproduce> &reproduceMap,
+              bool VerboseMode);
 
 TestResult checkProperty(const Property &property,
                          const TestMetadata &metadata,
                          const TestParams &params,
-                         TestListener &listener);
+                         TestListener &listener,
+                         bool VerboseMode);
 
 TestResult checkProperty(const Property &property,
                          const TestMetadata &metadata,
-                         const TestParams &params);
+                         const TestParams &params,
+                         bool VerboseMode);
 
 TestResult checkProperty(const Property &property,
-                         const TestMetadata &metadata);
+                         const TestMetadata &metadata,
+                         bool VerboseMode);
 
 // Uses defaults from configuration
-TestResult checkProperty(const Property &property);
+TestResult checkProperty(const Property &property, bool VerboseMode);
+
 
 template <typename Testable, typename... Args>
 TestResult checkTestable(Testable &&testable, Args &&... args) {
@@ -42,11 +47,23 @@ TestResult checkTestable(Testable &&testable, Args &&... args) {
 
 template <typename Testable>
 bool check(Testable &&testable) {
-  return check(std::string(), std::forward<Testable>(testable));
+  return check(
+      std::string(), std::forward<Testable>(testable), /*Verbose Mode*/ false);
 }
 
 template <typename Testable>
 bool check(const std::string &description, Testable &&testable) {
+  return check(description, std::forward<Testable>(testable), /*Verbose Mode*/ false);
+}
+
+// Verbose 
+template <typename Testable>
+bool check(Testable &&testable, bool VerboseMode) {
+  return check(std::string(), std::forward<Testable>(testable), /*Verbose Mode*/ VerboseMode);
+}
+
+template <typename Testable>
+bool check(const std::string &description, Testable &&testable, bool VerboseMode) {
   using namespace rc::detail;
 
   // Force loading of the configuration so that message comes _before_ the
@@ -61,12 +78,13 @@ bool check(const std::string &description, Testable &&testable) {
   metadata.id = description;
   metadata.description = description;
   const auto result =
-      detail::checkTestable(std::forward<Testable>(testable), metadata);
+      detail::checkTestable(std::forward<Testable>(testable), metadata, VerboseMode);
 
   printResultMessage(result, std::cerr);
   std::cerr << std::endl;
 
   return result.template is<detail::SuccessResult>();
 }
+
 
 } // namespace rc

@@ -14,60 +14,66 @@ namespace detail {
 template <typename T>
 class TowardsSeq {
 public:
-  using UInt = typename std::make_unsigned<T>::type;
-
   TowardsSeq(T value, T target)
       : m_value(value)
+      , m_target(target)
       , m_diff((target < value) ? (value - target) : (target - value))
       , m_down(target < value) {}
 
   Maybe<T> operator()() {
-    if (m_diff == 0) {
+    if (m_diff == 0)
       return Nothing;
+
+    if constexpr (std::is_integral_v<T>) {
+      m_diff >>= 1;
+    } else {
+      m_diff /= 2;
     }
 
-    T ret = m_down ? (m_value - m_diff) : (m_value + m_diff);
-    m_diff /= 2;
-    return ret;
+    return m_down ? (m_value - m_diff) : (m_value + m_diff);
   }
 
 private:
   T m_value;
-  UInt m_diff;
+  T m_target;
+  std::make_unsigned_t<T> m_diff;
   bool m_down;
 };
 
 template <typename Container>
 class RemoveChunksSeq {
 public:
-  template <typename ContainerArg>
-  explicit RemoveChunksSeq(ContainerArg &&elements)
-      : m_elements(std::forward<Container>(elements))
+  RemoveChunksSeq(Container elements)
+      : m_elements(std::move(elements))
       , m_start(0)
       , m_size(m_elements.size()) {}
 
   Maybe<Container> operator()() {
-    if (m_size == 0) {
+    if (m_size == 0)
       return Nothing;
-    }
 
-    Container elements;
-    elements.reserve(m_elements.size() - m_size);
-    const auto start = begin(m_elements);
-    const auto fin = end(m_elements);
-    elements.insert(end(elements), start, start + m_start);
-    elements.insert(end(elements), start + m_start + m_size, fin);
+    Container result;
+    result.reserve(m_elements.size() - m_size);
 
-    if ((m_size + m_start) >= m_elements.size()) {
+    std::copy_n(begin(m_elements), m_start, std::back_inserter(result));
+    std::copy(begin(m_elements) + m_start + m_size,
+              end(m_elements),
+              std::back_inserter(result));
+
+    updateIndices();
+    return result;
+  }
+
+private:
+  void updateIndices() {
+    if (m_start + m_size >= m_elements.size()) {
       m_size--;
       m_start = 0;
     } else {
       m_start++;
     }
-    return elements;
   }
 
-private:
   Container m_elements;
   std::size_t m_start;
   std::size_t m_size;
@@ -76,46 +82,36 @@ private:
 template <typename Container, typename Shrink>
 class EachElementSeq {
 public:
-  using T = typename rc::compat::return_type<Shrink,
-      typename Container::value_type>::type::ValueType;
-
-  template <typename ContainerArg, typename ShrinkArg>
-  explicit EachElementSeq(ContainerArg &&elements, ShrinkArg &&shrink)
-      : m_elements(std::forward<Container>(elements))
-      , m_shrink(std::forward<ShrinkArg>(shrink))
-      , m_i(0) {}
-
-  Maybe<Container> operator()() {
-    auto value = next();
-    if (!value) {
-      return Nothing;
+  EachElementSeq(Container elements, Shrink shrink)
+      : m_elements(std::move(elements))
+      , m_shrink(std::move(shrink))
+      , m_index(0) {
+    if (!m_elements.empty()) {
+      m_currentShrink = m_shrink(m_elements[0]);
     }
-
-    auto elements = m_elements;
-    elements[m_i - 1] = std::move(*value);
-    return elements;
   }
 
-private:
-  Maybe<T> next() {
+  Maybe<Container> operator()() {
     while (true) {
-      auto value = m_shrinks.next();
-      if (value) {
-        return value;
+      if (auto nextValue = m_currentShrink.next()) {
+        auto result = m_elements;
+        result[m_index] = std::move(*nextValue);
+        return result;
       }
 
-      if (m_i >= m_elements.size()) {
+      if (++m_index >= m_elements.size()) {
         return Nothing;
       }
 
-      m_shrinks = m_shrink(m_elements[m_i++]);
+      m_currentShrink = m_shrink(m_elements[m_index]);
     }
   }
 
+private:
   Container m_elements;
   Shrink m_shrink;
-  Seq<T> m_shrinks;
-  std::size_t m_i;
+  Seq<typename Container::value_type> m_currentShrink;
+  std::size_t m_index;
 };
 
 template <typename T>

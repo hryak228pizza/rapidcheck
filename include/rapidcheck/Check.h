@@ -10,11 +10,34 @@ namespace rc {
 template <typename Testable>
 bool check(Testable &&testable);
 
+
+
 /// Same as `check(Testable &&)` but also takes a description of the property
 /// that is being tested as the first parameter. This will be used in the
 /// output.
 template <typename Testable>
 bool check(const std::string &description, Testable &&testable);
+
+
+
+
+/// [New Feature]
+/// Same as `check(Testable &&)` but also takes a boolean parameter
+/// that controls the output of the generated test input
+template <typename Testable>
+bool check(Testable &&testable, bool VerboseMode);
+
+
+
+/// Same as `check(bool, Testable &&)` but also takes a description of the property
+/// that is being tested as the first parameter. This will be used in the
+/// output.
+template <typename Testable>
+bool check(const std::string &description, Testable &&testable, bool VerboseMode);
+
+
+
+
 
 } // namespace rc
 
