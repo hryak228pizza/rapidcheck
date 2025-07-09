@@ -1,3 +1,24 @@
+# About 
+This repository presents a new features for property-based testing (rapidcheck framework) in C++ and examples for testing these tools.
+
+The project is completed during the preparation of Pavel A.. Iliin work under Testing of software at SPbPU Institute of Computer Science and Cybersecurity (SPbPU ICSC).
+
+# Authors and contributors 
+The advisor and contributor Vladimir A. Parkhomenko Seniour Lecturer of SPbPU ICSC. The main contributor Pavel A.. Iliin student of SPbPU ICSC.
+
+# Warranty
+The contributors give no warranty for the using of the software.
+
+# Licence
+This program is open to use anywhere and is licensed under the GNU General Public License v3.0.
+
+# Project structure
+The project is a fork of rapidcheck framework.
+
+In the root folder you can find the main ***main.cpp*** file, as well as a script for mutation testing ***mutator.py*** and for generating a code coverage report ***run_coverage.sh***
+
+Next, in the ***examples*** folder, there are various examples that can be used to test the developed functionality.
+____
 # RapidCheck [![Build Status](https://travis-ci.org/emil-e/rapidcheck.svg?branch=master)](https://travis-ci.org/emil-e/rapidcheck) [![Build status](https://ci.appveyor.com/api/projects/status/8hms56ghn27agpcj/branch/master?svg=true)](https://ci.appveyor.com/project/emil-e/rapidcheck/branch/master)
 
 RapidCheck is a C++ framework for property based testing inspired by QuickCheck and other similar frameworks. In property based testing, you state facts about your code that given certain precondition should always be true. RapidCheck then generates random test data to try and find a case for which the property doesn't hold. If such a case is found, RapidCheck tries to find the smallest case (for some definition of smallest) for which the property is still false and then displays this as a counterexample. For example, if the input is an integer, RapidCheck tries to find the smallest integer for which the property is false.
