@@ -14,70 +14,73 @@ namespace detail {
 template <typename T>
 class TowardsSeq {
 public:
+  using UInt = typename std::make_unsigned<T>::type;
+
   TowardsSeq(T value, T target)
-      : m_value(value)
-      , m_target(target)
-      , m_diff((target < value) ? (value - target) : (target - value))
-      , m_down(target < value) {}
+      : m_value(std::move(value))
+      , m_down(target < m_value) {
+    UInt diff = m_down ? (m_value - target) : (target - m_value);
+    while (diff > 0) {
+      m_steps.push_back(diff);
+      diff /= 2;
+    }
+  }
 
   Maybe<T> operator()() {
-    if (m_diff == 0)
+    if (m_index >= m_steps.size())
       return Nothing;
-
-    if constexpr (std::is_integral_v<T>) {
-      m_diff >>= 1;
-    } else {
-      m_diff /= 2;
-    }
-
-    return m_down ? (m_value - m_diff) : (m_value + m_diff);
+    UInt step = m_steps[m_index++];
+    T ret = m_down ? m_value - step : m_value + step;
+    return std::move(ret);
   }
 
 private:
   T m_value;
-  T m_target;
-  std::make_unsigned_t<T> m_diff;
   bool m_down;
+  std::vector<UInt> m_steps;
+  std::size_t m_index = 0;
 };
+
 
 template <typename Container>
 class RemoveChunksSeq {
 public:
-  RemoveChunksSeq(Container elements)
-      : m_elements(std::move(elements))
+  using Ptr = std::shared_ptr<const Container>;
+
+  template <typename ContainerArg>
+  explicit RemoveChunksSeq(ContainerArg &&elements)
+      : m_elements(std::make_shared<const Container>(
+            std::forward<ContainerArg>(elements)))
       , m_start(0)
-      , m_size(m_elements.size()) {}
+      , m_size(m_elements->size()) {}
 
   Maybe<Container> operator()() {
     if (m_size == 0)
       return Nothing;
 
     Container result;
-    result.reserve(m_elements.size() - m_size);
+    result.reserve(m_elements->size() - m_size);
 
-    std::copy_n(begin(m_elements), m_start, std::back_inserter(result));
-    std::copy(begin(m_elements) + m_start + m_size,
-              end(m_elements),
-              std::back_inserter(result));
+    const auto &vec = *m_elements;
+    result.insert(result.end(), vec.begin(), vec.begin() + m_start);
+    result.insert(result.end(), vec.begin() + m_start + m_size, vec.end());
 
-    updateIndices();
-    return result;
-  }
-
-private:
-  void updateIndices() {
-    if (m_start + m_size >= m_elements.size()) {
+    if ((m_size + m_start) >= vec.size()) {
       m_size--;
       m_start = 0;
     } else {
       m_start++;
     }
+
+    return std::move(result);
   }
 
-  Container m_elements;
+private:
+  Ptr m_elements;
   std::size_t m_start;
   std::size_t m_size;
 };
+
 
 template <typename Container, typename Shrink>
 class EachElementSeq {

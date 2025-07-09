@@ -1,0 +1,99 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-de5586ed92702b6131f1.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				},
+				{
+					"build" : "ext",
+					"jsonFile" : "directory-ext-Debug-63b9e8ce5dc84e05b5e9.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "ext"
+				},
+				{
+					"build" : "extras",
+					"jsonFile" : "directory-extras-Debug-09e3ccdc0056ad189433.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "extras"
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"name" : "rapidcheck",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "my_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-my_test-Debug-286cd3882c37b5a4750b.json",
+					"name" : "my_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rapidcheck::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rapidcheck-Debug-855cd9bc5b272c0633ae.json",
+					"name" : "rapidcheck",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/gjfdh/source/repos/rapidcheck/out/build/x64-Debug",
+		"source" : "C:/Users/gjfdh/source/repos/rapidcheck"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}

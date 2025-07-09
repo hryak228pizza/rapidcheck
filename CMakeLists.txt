@@ -30,6 +30,7 @@ else()
   endif()
 endif()
 
+
 # RapidCheck will be built either as a static or a dynamic library depending on the CMake global
 # variable BUILD_SHARED_LIBS (https://cmake.org/cmake/help/latest/variable/BUILD_SHARED_LIBS.html).
 # If you wish to change the library type of RapidCheck, you can either specify the variable when invoking CMake
@@ -131,6 +132,7 @@ set(PKG_CONFIG_INCLUDEDIR "\${prefix}/include")
 set(PKG_CONFIG_LIBS)
 set(PKG_CONFIG_CFLAGS "-I\${includedir}")
 
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/pkg-config.pc.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
@@ -147,3 +149,8 @@ add_executable(my_test main.cpp)
 
 target_link_libraries(my_test PRIVATE ${CMAKE_BINARY_DIR}/Debug/rapidcheck.lib)
 target_include_directories(my_test PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -g")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+

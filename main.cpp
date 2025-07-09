@@ -1,85 +1,107 @@
-#include <algorithm>
-#include <chrono>
-#include <fstream>
-#include <iostream>
+// Given a linked list, swap every two adjacent nodes and return its head. You
+// must solve the problem without modifying the values in the list's nodes
+// (i.e., only nodes themselves may be changed.)
+
+// [1, 2, 3, 4] => [2, 1, 4, 3]
+// [1, 2, 3] => [2, 1, 3]
+
 #include <rapidcheck.h>
-#include <set>
-#include <vector>
 
-#ifdef _WIN32
-#include <windows.h>
-#include <psapi.h>
-#else
-#include <sys/resource.h>
-#include <unistd.h>
-#endif
+using namespace rc;
 
-// Измерение времени
-class Timer {
-public:
-  Timer() { start = std::chrono::high_resolution_clock::now(); }
-  void stop() {
-    end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-                  .count();
-  }
-  long long ms() const { return elapsed; }
-
-private:
-  std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-  long long elapsed = 0;
+// Definition for singly-linked list.
+struct ListNode {
+  int val;
+  ListNode *next;
+  ListNode()
+      : val(0)
+      , next(nullptr) {}
+  ListNode(int x)
+      : val(x)
+      , next(nullptr) {}
+  ListNode(int x, ListNode *next)
+      : val(x)
+      , next(next) {}
 };
 
-// Измерение памяти
-size_t getMemoryUsageKb() {
-#ifdef _WIN32
-  PROCESS_MEMORY_COUNTERS memCounter;
-  GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
-  return memCounter.WorkingSetSize / 1024;
-#else
-  struct rusage usage;
-  getrusage(RUSAGE_SELF, &usage);
-  return usage.ru_maxrss;
-#endif
+class Solution {
+public:
+  ListNode *customSwap(ListNode *lefthead, ListNode *righthead) {
+    if (lefthead && righthead)
+      lefthead->next = righthead->next;
+    if (righthead)
+      righthead->next = lefthead;
+    return righthead;
+  }
+  ListNode *swapPairs(ListNode *head) {
+
+    if (head && head->next)
+      head = customSwap(head, head->next);
+    ListNode *iter = head;
+    if (iter)
+      iter = iter->next;
+
+    while (iter && iter->next && iter->next->next) {
+
+      iter->next = customSwap(iter->next, iter->next->next);
+
+      iter = iter->next;
+      iter = iter->next;
+    }
+    return head;
+  }
+};
+
+// Helpers
+ListNode *fromVector(const std::vector<int> &vals) {
+  ListNode dummy(0);
+  ListNode *current = &dummy;
+  for (int val : vals) {
+    current->next = new ListNode(val);
+    current = current->next;
+  }
+  return dummy.next;
 }
 
-// Функция пузырьковой сортировки для тестирования
-void bubbleSort(std::vector<int> &arr) {
-  int n = arr.size();
-  for (int i = 0; i < n - 1; i++) {
-    for (int j = 0; j < n - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        std::swap(arr[j], arr[j + 1]);
-      }
-    }
+std::vector<int> toVector(ListNode *head) {
+  std::vector<int> result;
+  while (head) {
+    result.push_back(head->val);
+    head = head->next;
+  }
+  return result;
+}
+
+std::vector<int> expectedSwap(const std::vector<int> &v) {
+  std::vector<int> res = v;
+  for (size_t i = 1; i < res.size(); i += 2)
+    std::swap(res[i], res[i - 1]);
+  return res;
+}
+
+void freeList(ListNode *head) {
+  while (head) {
+    ListNode *temp = head;
+    head = head->next;
+    delete temp;
   }
 }
 
 int main() {
-  Timer timer;
+  rc::check(
+      "Swap Nodes in Pairs",
+      [](const std::vector<int> &input) {
+        ListNode *head = fromVector(input);
+        Solution s;
+        ListNode *result = s.swapPairs(head);
+        std::vector<int> actual = toVector(result);
+        std::vector<int> expected = expectedSwap(input);
 
-  setlocale(LC_ALL, "Russian");
+        RC_ASSERT(actual == expected);
 
-  rc::check("Корректная сортировка", [](std::vector<int> vec) {
-    std::vector<int> original = vec;
-    std::sort(vec.begin(), vec.end());
-
-    RC_ASSERT(vec.size() == original.size());
-
-    RC_ASSERT(std::is_sorted(vec.begin(), vec.end()));
-
-    std::vector<int> copy = vec;
-    std::sort(copy.begin(), copy.end());
-    RC_ASSERT(copy == vec);
-  });
-
-  timer.stop();
-
-  size_t memKb = getMemoryUsageKb();
-
-  std::cout << "\n=== Benchmark Results ===\n";
-  std::cout << "Time: " << timer.ms() << " ms\n";
-  std::cout << "Memory: " << memKb << " KB\n";
+        freeList(result);
+      },
+      true);
 
   return 0;
 }

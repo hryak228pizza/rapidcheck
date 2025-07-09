@@ -11,11 +11,11 @@ struct TestParams {
   /// The seed to use.
   uint64_t seed = 0;
   /// The maximum number of successes before deciding a property passes.
-  int maxSuccess = 100;
+  int maxSuccess = 100;  // 100
   /// The maximum size to generate.
-  int maxSize = 100;
+  int maxSize = 100;  // 100
   /// The maximum allowed number of discarded tests per successful test.
-  int maxDiscardRatio = 10;
+  int maxDiscardRatio = 2;  // 10
   /// Whether shrinking should be disabled or not.
   bool disableShrinking = false;
 };

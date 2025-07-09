@@ -3,6 +3,7 @@
 #include "rapidcheck/BeforeMinimalTestCase.h"
 #include "rapidcheck/shrinkable/Operations.h"
 
+
 namespace rc {
 namespace detail {
 namespace {
@@ -55,8 +56,8 @@ SearchResult searchProperty(const Property &property,
     const auto &result = caseDescription.result;
 
 
+    // Verbose
     if (VerboseMode) {
-      // Verbose
       const auto &values = caseDescription.example();
       TestCaseNumber++;
       std::cout << "Test " << TestCaseNumber << " Input: \n";
@@ -131,7 +132,6 @@ TestResult doTestProperty(const Property &property,
                           TestListener &listener,
                           bool VerboseMode) {
 
-  // std::cout << "doTestProperty" << std::endl;
   const auto searchResult = searchProperty(property, params, listener, VerboseMode);
   if (searchResult.type == SearchResult::Type::Success) {
     SuccessResult success;
@@ -177,7 +177,6 @@ TestResult testProperty(const Property &property,
                         const TestParams &params,
                         TestListener &listener,
                         bool VerboseMode) {
-  // std::cout << "testProperty" << std::endl;
   TestResult result = doTestProperty(property, params, listener, VerboseMode);
   listener.onTestFinished(metadata, result);
   return result;
@@ -185,7 +184,6 @@ TestResult testProperty(const Property &property,
 
 TestResult reproduceProperty(const Property &property,
                              const Reproduce &reproduce) {
-  // std::cout << "reproduceProperty" << std::endl;
   const auto shrinkable = property(reproduce.random, reproduce.size);
   const auto minShrinkable =
       shrinkable::walkPath(shrinkable, reproduce.shrinkPath);
